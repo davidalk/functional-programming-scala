@@ -130,8 +130,7 @@ class FunSetSuite extends FunSuite {
   
   test("filter a unioned set") {
     new TestSets {
-      def pred(x: Int): Boolean = x!=2
-      val filterSet = filter(uSet1, pred)
+      val filterSet = filter(uSet1, (x: Int) => x!=2)
       assert(contains(filterSet, 1), "Filter set contains 1")
       assert(!contains(filterSet, 2), "Filter set doesn't contain 2")
     }
