@@ -142,11 +142,19 @@ class FunSetSuite extends FunSuite {
 
     }
   }
-  
+
   test("test exists with predicate") {
     new TestSets {
-      assert(exists(uSet3, (x: Int) => x==2), "Set contains the value 2")
-      assert(!exists(uSet3, (x: Int) => x==7), "Set doesn't contain value 7")
+      assert(exists(uSet3, (x: Int) => x == 2), "Set contains the value 2")
+      assert(!exists(uSet3, (x: Int) => x == 7), "Set doesn't contain value 7")
+    }
+  }
+
+  test("test map for set") {
+    new TestSets {
+      assert(contains(map(uSet3, (x: Int) => x + 5), 6), "map contains 6")
+      assert(forall(map(uSet3, (x: Int) => x + 5), (x: Int) => x >= 6 && x <= 8), "map contains values x>=6 and x<=8")
+
     }
   }
 }
