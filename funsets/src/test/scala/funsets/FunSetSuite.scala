@@ -14,7 +14,6 @@ import org.scalatest.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class FunSetSuite extends FunSuite {
 
-
   /**
    * Link to the scaladoc - very clear and detailed tutorial of FunSuite
    *
@@ -47,30 +46,29 @@ class FunSetSuite extends FunSuite {
     assert(1 + 2 === 3)
   }
 
-  
   import FunSets._
 
   test("contains is implemented") {
     assert(contains(x => true, 100))
   }
-  
+
   /**
    * When writing tests, one would often like to re-use certain values for multiple
    * tests. For instance, we would like to create an Int-set and have multiple test
    * about it.
-   * 
+   *
    * Instead of copy-pasting the code for creating the set into every test, we can
    * store it in the test class using a val:
-   * 
+   *
    *   val s1 = singletonSet(1)
-   * 
+   *
    * However, what happens if the method "singletonSet" has a bug and crashes? Then
    * the test methods are not even executed, because creating an instance of the
    * test class fails!
-   * 
+   *
    * Therefore, we put the shared values into a separate trait (traits are like
    * abstract classes), and create an instance inside each test method.
-   * 
+   *
    */
 
   trait TestSets {
@@ -79,20 +77,21 @@ class FunSetSuite extends FunSuite {
     val s3 = singletonSet(3)
     val uSet1 = union(s1, s2)
     val uSet2 = union(s1, s3)
+    val uSet3 = union(uSet1, s3)
   }
 
   /**
    * This test is currently disabled (by using "ignore") because the method
    * "singletonSet" is not yet implemented and the test would fail.
-   * 
+   *
    * Once you finish your implementation of "singletonSet", exchange the
    * function "ignore" by "test".
    */
   test("singletonSet(1) contains 1") {
-    
+
     /**
      * We create a new instance of the "TestSets" trait, this gives us access
-     * to the values "s1" to "s3". 
+     * to the values "s1" to "s3".
      */
     new TestSets {
       /**
@@ -111,15 +110,15 @@ class FunSetSuite extends FunSuite {
       assert(!contains(s, 3), "Union 3")
     }
   }
-  
+
   test("intersect between two sets") {
     new TestSets {
       val joinSet = intersect(uSet1, uSet2)
       assert(contains(joinSet, 1), "Intersect contains 1")
-      
+
     }
   }
-  
+
   test("diff between two sets") {
     new TestSets {
       val diffSet = diff(uSet1, uSet2)
@@ -127,12 +126,27 @@ class FunSetSuite extends FunSuite {
       assert(contains(diffSet, 2), "Diff contains 2")
     }
   }
-  
+
   test("filter a unioned set") {
     new TestSets {
-      val filterSet = filter(uSet1, (x: Int) => x!=2)
+      val filterSet = filter(uSet1, (x: Int) => x != 2)
       assert(contains(filterSet, 1), "Filter set contains 1")
       assert(!contains(filterSet, 2), "Filter set doesn't contain 2")
+    }
+  }
+
+  test("test forall with predicate") {
+    new TestSets {
+      assert(forall(uSet3, (x: Int) => x > 0 && x < 4), "All members are greater than 0 and less than 4")
+      assert(!forall(uSet3, (x: Int) => x == 2), "All members !=2")
+
+    }
+  }
+  
+  test("test exists with predicate") {
+    new TestSets {
+      assert(exists(uSet3, (x: Int) => x==2), "Set contains the value 2")
+      assert(!exists(uSet3, (x: Int) => x==7), "Set doesn't contain value 7")
     }
   }
 }
