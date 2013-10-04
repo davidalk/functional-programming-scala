@@ -43,6 +43,12 @@ class TweetSetSuite extends FunSuite {
       assert(size(set5.filter(tw => tw.retweets == 20)) === 2)
     }
   }
+  
+  test("filter: >7 on set5") {
+    new TestSets {
+      assert(size(set5.filter(tw => tw.retweets > 7)) == 3)
+    }
+  }
 
   test("union: set4c and set4d") {
     new TestSets {

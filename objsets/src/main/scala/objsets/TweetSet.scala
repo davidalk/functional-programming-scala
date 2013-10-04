@@ -120,7 +120,7 @@ class Empty extends TweetSet {
   override def mostRetweeted: Tweet = throw new java.util.NoSuchElementException
 
   def mostRetweetedIter(acc: Tweet): Tweet = acc
-  
+
   def descendingByRetweetIter(cons: TweetList): TweetList = cons
 
   /**
@@ -143,7 +143,7 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
     else left.filterAcc(p, right.filterAcc(p, acc))
   }
 
-  def union(that: TweetSet): TweetSet = ((left union right) union that) incl elem
+  def union(that: TweetSet): TweetSet = left.union(right.union(that incl elem))
 
   def mostRetweetedIter(acc: Tweet): Tweet = {
     if (elem.retweets > acc.retweets) left.mostRetweetedIter(right.mostRetweetedIter(elem))
@@ -153,7 +153,7 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
   def descendingByRetweetIter(cons: TweetList): TweetList = {
     val mostRetweeted = this.mostRetweeted
     val tweetSet = this.remove(mostRetweeted)
-    new Cons(mostRetweeted, tweetSet.descendingByRetweetIter(cons) )
+    new Cons(mostRetweeted, tweetSet.descendingByRetweetIter(cons))
   }
 
   /**
@@ -208,8 +208,9 @@ object GoogleVsApple {
   val google = List("android", "Android", "galaxy", "Galaxy", "nexus", "Nexus")
   val apple = List("ios", "iOS", "iphone", "iPhone", "ipad", "iPad")
 
-  lazy val googleTweets: TweetSet = ???
-  lazy val appleTweets: TweetSet = ???
+  lazy val googleTweets: TweetSet = TweetReader.allTweets.filter((tweet: Tweet) => google.exists((s: String) => tweet.text.contains(s)))
+
+  lazy val appleTweets: TweetSet = TweetReader.allTweets.filter((tweet: Tweet) => apple.exists((s: String) => tweet.text.contains(s)))
 
   /**
    * A list of all tweets mentioning a keyword from either apple or google,
