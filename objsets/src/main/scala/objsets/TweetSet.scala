@@ -66,10 +66,8 @@ abstract class TweetSet {
    * Question: Should we implment this method here, or should it remain abstract
    * and be implemented in the subclasses?
    */
-  def mostRetweeted: Tweet = mostRetweetedIter(new Tweet("", "", 0))
-
-  def mostRetweetedIter(acc: Tweet): Tweet
-
+    def mostRetweeted: Tweet
+  
   /**
    * Returns a list containing all tweets of this set, sorted by retweet count
    * in descending order. In other words, the head of the resulting list should
@@ -79,9 +77,7 @@ abstract class TweetSet {
    * Question: Should we implment this method here, or should it remain abstract
    * and be implemented in the subclasses?
    */
-  def descendingByRetweet: TweetList = descendingByRetweetIter(Nil)
-
-  def descendingByRetweetIter(cons: TweetList): TweetList
+  def descendingByRetweet: TweetList
 
   /**
    * The following methods are already implemented
@@ -109,6 +105,8 @@ abstract class TweetSet {
    * This method takes a function and applies it to every element in the set.
    */
   def foreach(f: Tweet => Unit): Unit
+
+  def isEmpty: Boolean
 }
 
 class Empty extends TweetSet {
@@ -119,9 +117,9 @@ class Empty extends TweetSet {
 
   override def mostRetweeted: Tweet = throw new java.util.NoSuchElementException
 
-  def mostRetweetedIter(acc: Tweet): Tweet = acc
+  def descendingByRetweet: TweetList = Nil
 
-  def descendingByRetweetIter(cons: TweetList): TweetList = cons
+  def isEmpty: Boolean = true
 
   /**
    * The following methods are already implemented
@@ -145,16 +143,21 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
 
   def union(that: TweetSet): TweetSet = left.union(right.union(that incl elem))
 
-  def mostRetweetedIter(acc: Tweet): Tweet = {
-    if (elem.retweets > acc.retweets) left.mostRetweetedIter(right.mostRetweetedIter(elem))
-    else left.mostRetweetedIter(right.mostRetweetedIter(acc))
+  def max(x: Tweet, y: Tweet): Tweet = if (x.retweets > y.retweets) x else y
+
+  def mostRetweeted: Tweet = {
+    if (right.isEmpty && left.isEmpty) elem
+    else if (right.isEmpty && !left.isEmpty) max(elem, left.mostRetweeted)
+    else if (!right.isEmpty && left.isEmpty) max(elem, right.mostRetweeted)
+    else max(elem, max(left.mostRetweeted, right.mostRetweeted))
   }
 
-  def descendingByRetweetIter(cons: TweetList): TweetList = {
+  def descendingByRetweet: TweetList = {
     val mostRetweeted = this.mostRetweeted
-    val tweetSet = this.remove(mostRetweeted)
-    new Cons(mostRetweeted, tweetSet.descendingByRetweetIter(cons))
+    new Cons(mostRetweeted, this.remove(mostRetweeted).descendingByRetweet)
   }
+
+  def isEmpty: Boolean = false
 
   /**
    * The following methods are already implemented
@@ -216,7 +219,7 @@ object GoogleVsApple {
    * A list of all tweets mentioning a keyword from either apple or google,
    * sorted by the number of retweets.
    */
-  lazy val trending: TweetList = ???
+  lazy val trending: TweetList = (appleTweets union googleTweets).descendingByRetweet
 }
 
 object Main extends App {
