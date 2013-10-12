@@ -106,7 +106,7 @@ object Huffman {
       case List() => accu
       case freqHead :: freqTail => makeOrderedLeafListAccu(freqTail, insertLeafNode(freqHead._1, freqHead._2, accu))
     }
-    
+
     makeOrderedLeafListAccu(freqs, Nil)
   }
 
@@ -131,7 +131,17 @@ object Huffman {
    * If `trees` is a list of less than two elements, that list should be returned
    * unchanged.
    */
-  def combine(trees: List[CodeTree]): List[CodeTree] = ???
+  def combine(trees: List[CodeTree]): List[CodeTree] = {
+
+    def insertCodeTree(insertTree: CodeTree, trees: List[CodeTree]): List[CodeTree] = trees match {
+      case List() => insertTree :: Nil
+      case treesHead :: treesTail => if (weight(insertTree) <= weight(treesHead)) insertTree :: treesHead :: treesTail
+      else treesHead :: insertCodeTree(insertTree, treesTail)
+    }
+
+    if (singleton(trees)) trees
+    else insertCodeTree(makeCodeTree(trees.head, trees.tail.head), trees.tail.tail)
+  }
 
   /**
    * This function will be called in the following way:
