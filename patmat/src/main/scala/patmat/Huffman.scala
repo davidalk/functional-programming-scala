@@ -162,8 +162,8 @@ object Huffman {
   def until(singlFn: (List[CodeTree]) => Boolean, combFn: (List[CodeTree]) => List[CodeTree])(trees: List[CodeTree]): List[CodeTree] = trees match {
     case List() => Nil
     case headTree :: Nil => trees
-    case headTree :: tailTrees => if (singlFn(tailTrees)) combFn(headTree :: tailTrees) 
-    								else until(singlFn, combFn)(combFn(headTree :: tailTrees))
+    case headTree :: tailTrees => if (singlFn(tailTrees)) combFn(headTree :: tailTrees)
+    else until(singlFn, combFn)(combFn(headTree :: tailTrees))
   }
 
   /**
@@ -172,7 +172,7 @@ object Huffman {
    * The parameter `chars` is an arbitrary text. This function extracts the character
    * frequencies from that text and creates a code tree based on them.
    */
-  def createCodeTree(chars: List[Char]): CodeTree = ( until(singleton, combine) ( makeOrderedLeafList(times(chars)) ) ).head
+  def createCodeTree(chars: List[Char]): CodeTree = (until(singleton, combine)(makeOrderedLeafList(times(chars)))).head
 
   // Part 3: Decoding
 
@@ -182,7 +182,32 @@ object Huffman {
    * This function decodes the bit sequence `bits` using the code tree `tree` and returns
    * the resulting list of characters.
    */
-  def decode(tree: CodeTree, bits: List[Bit]): List[Char] = ???
+  def decode(tree: CodeTree, bits: List[Bit]): List[Char] = {
+
+    def traverseTree(tree: CodeTree, bit: Bit): CodeTree = tree match {
+      case Fork(left, right, chars, weight) => if (bit == 0) left else right
+      case Leaf(char, weight) => tree
+    }
+
+    def decodeAccu(innerTree: CodeTree, bits: List[Bit], accu: List[Char]): List[Char] = innerTree match {
+      case Fork(left, right, chars, weight) => {
+        if (bits.isEmpty) accu
+        else if (bits.head == 1 || bits.head == 0) {
+          val newTree = traverseTree(innerTree, bits.head)
+          decodeAccu(newTree, bits.tail, accu)
+        } else throw new IllegalArgumentException
+      }
+      case Leaf(char, weight) => {
+        if (bits.isEmpty) accu ::: List(char)
+        else if (bits.head == 1 || bits.head == 0) {
+          val newTree = traverseTree(tree, bits.head)
+          decodeAccu(newTree, bits.tail, accu ::: List(char))
+        } else throw new IllegalArgumentException
+      }
+    }
+
+    decodeAccu(tree, bits, Nil)
+  }
 
   /**
    * A Huffman coding tree for the French language.
@@ -200,7 +225,7 @@ object Huffman {
   /**
    * Write a function that returns the decoded secret
    */
-  def decodedSecret: List[Char] = ???
+  def decodedSecret: List[Char] = decode(frenchCode, secret)
 
   // Part 4a: Encoding using Huffman tree
 
