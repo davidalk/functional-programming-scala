@@ -74,7 +74,7 @@ object Huffman {
    *   }
    */
   def times(chars: List[Char]): List[(Char, Int)] = {
-    
+
     def pairInc(char: Char, pairList: List[(Char, Int)]): List[(Char, Int)] = pairList match {
       case List() => (char, 1) :: Nil
       case listHead :: listTail => if (listHead._1 == char) (listHead._1, listHead._2 + 1) :: listTail else listHead :: pairInc(char, listTail)
@@ -85,7 +85,7 @@ object Huffman {
       case listHead :: listTail => timesAccu(listTail, pairInc(listHead, accu))
     }
 
-    timesAccu(chars, List())
+    timesAccu(chars, Nil)
   }
 
   /**
@@ -95,7 +95,20 @@ object Huffman {
    * head of the list should have the smallest weight), where the weight
    * of a leaf is the frequency of the character.
    */
-  def makeOrderedLeafList(freqs: List[(Char, Int)]): List[Leaf] = ???
+  def makeOrderedLeafList(freqs: List[(Char, Int)]): List[Leaf] = {
+
+    def insertLeafNode(char: Char, int: Int, nodes: List[Leaf]): List[Leaf] = nodes match {
+      case List() => Leaf(char, int) :: Nil
+      case nodeHead :: nodeTail => if (int <= weight(nodeHead)) Leaf(char, int) :: nodeHead :: nodeTail else nodeHead :: insertLeafNode(char, int, nodeTail)
+    }
+
+    def makeOrderedLeafListAccu(freqs: List[(Char, Int)], accu: List[Leaf]): List[Leaf] = freqs match {
+      case List() => accu
+      case freqHead :: freqTail => makeOrderedLeafListAccu(freqTail, insertLeafNode(freqHead._1, freqHead._2, accu))
+    }
+    
+    makeOrderedLeafListAccu(freqs, Nil)
+  }
 
   /**
    * Checks whether the list `trees` contains only one single code tree.
