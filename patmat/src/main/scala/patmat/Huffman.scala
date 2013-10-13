@@ -76,12 +76,12 @@ object Huffman {
   def times(chars: List[Char]): List[(Char, Int)] = {
 
     def pairInc(char: Char, pairList: List[(Char, Int)]): List[(Char, Int)] = pairList match {
-      case List() => (char, 1) :: Nil
+      case Nil => (char, 1) :: Nil
       case listHead :: listTail => if (listHead._1 == char) (listHead._1, listHead._2 + 1) :: listTail else listHead :: pairInc(char, listTail)
     }
 
     def timesAccu(chars: List[Char], accu: List[(Char, Int)]): List[(Char, Int)] = chars match {
-      case List() => accu
+      case Nil => accu
       case listHead :: listTail => timesAccu(listTail, pairInc(listHead, accu))
     }
 
@@ -98,12 +98,12 @@ object Huffman {
   def makeOrderedLeafList(freqs: List[(Char, Int)]): List[Leaf] = {
 
     def insertLeafNode(char: Char, int: Int, nodes: List[Leaf]): List[Leaf] = nodes match {
-      case List() => Leaf(char, int) :: Nil
+      case Nil => Leaf(char, int) :: Nil
       case nodeHead :: nodeTail => if (int <= weight(nodeHead)) Leaf(char, int) :: nodeHead :: nodeTail else nodeHead :: insertLeafNode(char, int, nodeTail)
     }
 
     def makeOrderedLeafListAccu(freqs: List[(Char, Int)], accu: List[Leaf]): List[Leaf] = freqs match {
-      case List() => accu
+      case Nil => accu
       case freqHead :: freqTail => makeOrderedLeafListAccu(freqTail, insertLeafNode(freqHead._1, freqHead._2, accu))
     }
 
@@ -133,7 +133,7 @@ object Huffman {
   def combine(trees: List[CodeTree]): List[CodeTree] = {
 
     def insertCodeTree(insertTree: CodeTree, trees: List[CodeTree]): List[CodeTree] = trees match {
-      case List() => insertTree :: Nil
+      case Nil => insertTree :: Nil
       case treesHead :: treesTail => if (weight(insertTree) <= weight(treesHead)) insertTree :: treesHead :: treesTail
       else treesHead :: insertCodeTree(insertTree, treesTail)
     }
@@ -160,7 +160,7 @@ object Huffman {
    *  - try to find sensible parameter names for `xxx`, `yyy` and `zzz`.
    */
   def until(singlFn: (List[CodeTree]) => Boolean, combFn: (List[CodeTree]) => List[CodeTree])(trees: List[CodeTree]): List[CodeTree] = trees match {
-    case List() => Nil
+    case Nil => Nil
     case headTree :: Nil => trees
     case headTree :: tailTrees => if (singlFn(tailTrees)) combFn(headTree :: tailTrees)
     else until(singlFn, combFn)(combFn(headTree :: tailTrees))

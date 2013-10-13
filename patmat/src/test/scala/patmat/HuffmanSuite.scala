@@ -49,7 +49,7 @@ class HuffmanSuite extends FunSuite {
     assert(combinedAgain === List(Fork(newLeft, newRight, List('e', 't', 'x'), 7)))
   }
 
-  test("test the until function") {
+  test("test the until function with 3 leaf nodes") {
     val leafList = List(Leaf('e', 1), Leaf('t', 2), Leaf('x', 4))
     val result = until(singleton, combine)(leafList)
     assert(result === List(
@@ -58,7 +58,7 @@ class HuffmanSuite extends FunSuite {
 
   }
 
-  test("test the until function with 4 nodes") {
+  test("test the until function with 4 leaf nodes") {
     val leafList = List(Leaf('d', 1), Leaf('c', 1), Leaf('b', 3), Leaf('a', 6))
     val result = until(singleton, combine)(leafList)
     assert(result === List(
