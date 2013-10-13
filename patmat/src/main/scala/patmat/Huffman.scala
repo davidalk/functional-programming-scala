@@ -243,12 +243,12 @@ object Huffman {
       }
       case Leaf(leafChar, weight) => Nil
     }
-    
+
     def encodeCharIter(tree: CodeTree)(text: List[Char]): List[Bit] = text match {
       case Nil => Nil
       case textHead :: textTail => encodeChar(tree)(textHead) ::: encodeCharIter(tree)(textTail)
     }
-    
+
     encodeCharIter(tree)(text)
   }
 
@@ -260,7 +260,10 @@ object Huffman {
    * This function returns the bit sequence that represents the character `char` in
    * the code table `table`.
    */
-  def codeBits(table: CodeTable)(char: Char): List[Bit] = ???
+  def codeBits(table: CodeTable)(char: Char): List[Bit] = table match {
+    case Nil => Nil
+    case tableHead :: tableTail => if (tableHead._1 == char) tableHead._2 else codeBits(tableTail)(char)
+  }
 
   /**
    * Given a code tree, create a code table which contains, for every character in the
@@ -270,14 +273,30 @@ object Huffman {
    * a valid code tree that can be represented as a code table. Using the code tables of the
    * sub-trees, think of how to build the code table for the entire tree.
    */
-  def convert(tree: CodeTree): CodeTable = ???
+  def convert(tree: CodeTree): CodeTable = tree match {
+    case Fork(left, right, chars, weight) => mergeCodeTables(convert(left), convert(right))
+    case Leaf(char, weight) => List( (char,Nil) )
+  }
 
   /**
    * This function takes two code tables and merges them into one. Depending on how you
    * use it in the `convert` method above, this merge method might also do some transformations
    * on the two parameter code tables.
    */
-  def mergeCodeTables(a: CodeTable, b: CodeTable): CodeTable = ???
+  def mergeCodeTables(a: CodeTable, b: CodeTable): CodeTable = {
+
+    def transformLeft(left: CodeTable): CodeTable = left match {
+      case Nil => Nil
+      case headTable :: tailTable => List((headTable._1, List(0) ::: headTable._2)) ::: transformLeft(tailTable)
+    }
+
+    def transformRight(right: CodeTable): CodeTable = right match {
+      case Nil => Nil
+      case headTable :: tailTable => List((headTable._1, List(1) ::: headTable._2)) ::: transformRight(tailTable)
+    }
+    
+    transformLeft(a) ::: transformRight(b)
+  }
 
   /**
    * This function encodes `text` according to the code tree `tree`.
