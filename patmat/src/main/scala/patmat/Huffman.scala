@@ -184,29 +184,20 @@ object Huffman {
    */
   def decode(tree: CodeTree, bits: List[Bit]): List[Char] = {
 
-    def traverseTree(tree: CodeTree, bit: Bit): CodeTree = tree match {
-      case Fork(left, right, chars, weight) => if (bit == 0) left else right
-      case Leaf(char, weight) => tree
+    def decodeIter(innerTree: CodeTree, bits: List[Bit]): List[Char] = (innerTree, bits) match {
+      case (Fork(left, right, chars, weight), Nil) => Nil
+      case (Fork(left, right, chars, weight), bitsHead :: bitsTail) => if (bitsHead == 1 || bitsHead == 0) {
+        decodeIter(if (bitsHead == 0) left else right, bitsTail)
+      } else throw new IllegalArgumentException
+
+      case (Leaf(char, weight), Nil) => List(char)
+      case (Leaf(char, weight), bitsList) => List(char) ::: decodeIter(tree, bitsList)
+
+      case (_, List(_)) => throw new IllegalArgumentException
+
     }
 
-    def decodeAccu(innerTree: CodeTree, bits: List[Bit], accu: List[Char]): List[Char] = innerTree match {
-      case Fork(left, right, chars, weight) => {
-        if (bits.isEmpty) accu
-        else if (bits.head == 1 || bits.head == 0) {
-          val newTree = traverseTree(innerTree, bits.head)
-          decodeAccu(newTree, bits.tail, accu)
-        } else throw new IllegalArgumentException
-      }
-      case Leaf(char, weight) => {
-        if (bits.isEmpty) accu ::: List(char)
-        else if (bits.head == 1 || bits.head == 0) {
-          val newTree = traverseTree(tree, bits.head)
-          decodeAccu(newTree, bits.tail, accu ::: List(char))
-        } else throw new IllegalArgumentException
-      }
-    }
-
-    decodeAccu(tree, bits, Nil)
+    decodeIter(tree, bits)
   }
 
   /**
@@ -275,7 +266,7 @@ object Huffman {
    */
   def convert(tree: CodeTree): CodeTable = tree match {
     case Fork(left, right, chars, weight) => mergeCodeTables(convert(left), convert(right))
-    case Leaf(char, weight) => List( (char,Nil) )
+    case Leaf(char, weight) => List((char, Nil))
   }
 
   /**
@@ -294,7 +285,7 @@ object Huffman {
       case Nil => Nil
       case headTable :: tailTable => List((headTable._1, List(1) ::: headTable._2)) ::: transformRight(tailTable)
     }
-    
+
     transformLeft(a) ::: transformRight(b)
   }
 
@@ -306,12 +297,12 @@ object Huffman {
    */
   def quickEncode(tree: CodeTree)(text: List[Char]): List[Bit] = {
     val codeTable = convert(tree)
-    
+
     def quickEncodeIter(text: List[Char]): List[Bit] = text match {
       case Nil => Nil
       case textHead :: textTail => codeBits(codeTable)(textHead) ::: quickEncodeIter(textTail)
     }
-    
+
     quickEncodeIter(text)
   }
 }
