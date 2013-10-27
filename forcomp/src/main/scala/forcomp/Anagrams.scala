@@ -111,7 +111,7 @@ object Anagrams {
    *  and has no zero-entries.
    */
   def subtract(x: Occurrences, y: Occurrences): Occurrences = {
-    val folded = y.foldLeft(x.toMap)((accMap, elem) => if(accMap.contains(elem._1)) accMap.updated(elem._1, accMap(elem._1) - elem._2) else accMap)
+    val folded = y.foldLeft(x.toMap)((accMap, elem) => if (accMap.contains(elem._1)) accMap.updated(elem._1, accMap(elem._1) - elem._2) else accMap)
     folded.toList.filter(x => x._2 != 0).sortWith(_._1 < _._1)
   }
 
@@ -156,6 +156,20 @@ object Anagrams {
    *
    *  Note: There is only one anagram of an empty sentence.
    */
-  def sentenceAnagrams(sentence: Sentence): List[Sentence] = ???
+  def sentenceAnagrams(sentence: Sentence): List[Sentence] = {
+
+    def sentenceAnagramsIter(occurrences: Occurrences): List[Sentence] = occurrences match {
+      case List() => List(Nil)
+      case occurList => {
+        for {
+          comb <- combinations(occurList)
+          wordList <- dictionaryByOccurrences.getOrElse(comb, Nil)
+          sentence <- sentenceAnagramsIter(subtract(occurList, wordOccurrences(wordList)))
+        } yield wordList :: sentence
+      }
+    }
+
+    sentenceAnagramsIter(sentenceOccurrences(sentence))
+  }
 
 }
