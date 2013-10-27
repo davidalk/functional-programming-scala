@@ -110,7 +110,10 @@ object Anagrams {
    *  Note: the resulting value is an occurrence - meaning it is sorted
    *  and has no zero-entries.
    */
-  def subtract(x: Occurrences, y: Occurrences): Occurrences = ???
+  def subtract(x: Occurrences, y: Occurrences): Occurrences = {
+    val folded = y.foldLeft(x.toMap)((accMap, elem) => if(accMap.contains(elem._1)) accMap.updated(elem._1, accMap(elem._1) - elem._2) else accMap)
+    folded.toList.filter(x => x._2 != 0).sortWith(_._1 < _._1)
+  }
 
   /**
    * Returns a list of all anagram sentences of the given sentence.
