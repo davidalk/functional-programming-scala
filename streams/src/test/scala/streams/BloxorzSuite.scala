@@ -81,6 +81,7 @@ class BloxorzSuite extends FunSuite {
 
   test("optimal solution for level 1") {
     new Level1 {
+      solution.toString
       assert(solve(solution) == Block(goal, goal))
     }
   }

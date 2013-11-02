@@ -36,10 +36,8 @@ object streams_worksheet {
   }
   
    new Level1 {
-      terrain(Pos(0,0))
-      terrain(Pos(4,11))
+      solution == List()
     }                                             //> res0: streams.streams_worksheet.Level1 = streams.streams_worksheet$$anonfun$
-                                                  //| main$1$$anon$1@1276ff65
+                                                  //| main$1$$anon$1@64b28abf
 
-     true                                         //> res1: Boolean(true) = true
 }
